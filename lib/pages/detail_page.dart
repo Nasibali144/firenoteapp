@@ -1,8 +1,13 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:firenoteapp/models/post_model.dart';
 import 'package:firenoteapp/pages/home_page.dart';
 import 'package:firenoteapp/services/db_service.dart';
 import 'package:firenoteapp/services/rtdb_service.dart';
+import 'package:firenoteapp/services/stor_service.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DetailPage extends StatefulWidget {
   static const String id = "detail_page";
@@ -17,8 +22,13 @@ class _DetailPageState extends State<DetailPage> {
 
   TextEditingController controllerTitle = TextEditingController();
   TextEditingController controllerContent = TextEditingController();
+  File? _image;
 
   void _savePostDatabase() async {
+    setState(() {
+      isLoading = true;
+    });
+    String? imgUrl;
     String title = controllerTitle.text.trim().toString();
     String content = controllerContent.text.trim().toString();
     if(title.isEmpty || content.isEmpty) {
@@ -29,10 +39,18 @@ class _DetailPageState extends State<DetailPage> {
     String? firstname = DBService.loadString(StorageKeys.FIRSTNAME);
     String? lastname = DBService.loadString(StorageKeys.LASTNAME);
 
-    Post post = Post(userId!, firstname!, lastname!, content, DateTime.now().toString(), "assets/images/img.png");
+    if(_image != null) {
+      imgUrl = await StoreService.uploadImage(_image!);
+    }
+
+    Post post = Post(userId!, firstname! + " " + lastname!, title, content, DateTime.now().toString(), imgUrl);
     RTDBService.storePost(post).then((value) {
       if(value != null) {
+        setState(() {
+          isLoading = false;
+        });
         _goHomePage();
+
       } else {
         // error msg
       }
@@ -41,6 +59,17 @@ class _DetailPageState extends State<DetailPage> {
 
   _goHomePage() {
     Navigator.pushReplacementNamed(context, HomePage.id);
+  }
+
+  Future getImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if(pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    } else {
+      // error msg
+    }
   }
 
   @override
@@ -59,7 +88,7 @@ class _DetailPageState extends State<DetailPage> {
               children: [
                 // #image
                 GestureDetector(
-                  onTap: () {},
+                  onTap: getImage,
                   child: Container(
                     height: 150,
                     width: 150,

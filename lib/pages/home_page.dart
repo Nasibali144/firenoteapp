@@ -53,20 +53,16 @@ class _HomePageState extends State<HomePage> with RouteAware{
     apiLoadPost();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-              onPressed: () {
-                AuthService.signOutUser(context);
-              },
-              icon: const Icon(Icons.replay)),
-          const SizedBox(width: 10),
           IconButton(onPressed: () {
             AuthService.signOutUser(context);
           }, icon: Icon(Icons.logout)),
+          const SizedBox(width: 10),
         ],
       ),
       body: ListView.builder(
@@ -78,11 +74,13 @@ class _HomePageState extends State<HomePage> with RouteAware{
                 // onTap: (){
                 //   Navigator.pushNamed(context, DetailPage.id);
                 // },
-                textColor: Colors.white,
-                leading: CircleAvatar(
-                    backgroundImage: NetworkImage(list[index].imgUrl)
+                textColor: Colors.black,
+                leading: list[index].imgUrl != null ? CircleAvatar(
+                    backgroundImage: NetworkImage(list[index].imgUrl!),
+                ) : const CircleAvatar(
+                  backgroundImage: AssetImage("assets/images/img.png"),
                 ),
-                title: Text(list[index].firstname),
+                title: Text(list[index].title),
                 subtitle: Text(list[index].content),
               ),
             );

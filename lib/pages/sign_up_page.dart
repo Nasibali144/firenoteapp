@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firenoteapp/pages/sign_in_page.dart';
 import 'package:firenoteapp/services/auth_service.dart';
+import 'package:firenoteapp/services/db_service.dart';
 import 'package:flutter/material.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -28,6 +29,9 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
+    DBService.storeString(StorageKeys.FIRSTNAME, firstName);
+    DBService.storeString(StorageKeys.LASTNAME, lastName);
+    
     await AuthService.signUpUser(firstName + " " + lastName, email, password).then((value) => _getFirebaseUser(value));
   }
 
